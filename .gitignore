@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.bin
+*.gguf
+*.safetensors
+*.sqlite3
+chroma_db/
+notebooks/
+.env

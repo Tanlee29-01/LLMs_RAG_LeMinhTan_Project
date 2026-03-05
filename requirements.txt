@@ -1,0 +1,20 @@
+accelerate
+transformers == 4.57.6
+huggingface-hub==0.36.2
+langchain 
+langserve
+langchain-community
+langchain-openai
+langchain-experimental
+langchain-google-genai
+langchain-huggingface
+bitsandbytes
+ipywidgets
+jupyterlab
+sentence-transformers
+pypdf
+langchain-chroma
+fastapi[all]
+wget
+sse_starlette
+gradio
