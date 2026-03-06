@@ -1,20 +1,30 @@
+# --- LLM & Models ---
+transformers==4.57.6
 accelerate
-transformers == 4.57.6
-huggingface-hub==0.36.2
-langchain 
-langserve
+bitsandbytes
+sentence-transformers
+
+# --- LangChain Ecosystem  ---
+langchain
+langchain-core
 langchain-community
+langchain-classic
+langchain-huggingface
+langchain-chroma
 langchain-openai
 langchain-experimental
 langchain-google-genai
-langchain-huggingface
-bitsandbytes
-ipywidgets
-jupyterlab
-sentence-transformers
-pypdf
-langchain-chroma
-fastapi[all]
-wget
+
+# --- Web Frameworks & Deployment ---
+langserve
+fastapi[standard]
 sse_starlette
 streamlit
+
+# --- Jupyter & UI ---
+ipywidgets
+jupyterlab
+
+# --- Utilities ---
+pypdf
+requests  # Thay thế cho wget để tải file an toàn và hiện đại hơn

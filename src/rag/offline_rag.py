@@ -3,6 +3,10 @@ from langchain_classic import hub
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
+from langchain_classic.retrievers import MultiQueryRetriever
+
+
+
 """
 output: tach nhung cai minh can
 """
@@ -39,14 +43,20 @@ class Offline_RAG:
 
                 Question: {question}
 
-                Helpful Answer:"""
+                Helpful Answer:
+                """
         
         self.prompt = PromptTemplate.from_template(template)
         self.str_parser = Str_OutputParser()
 
     def get_chain(self,retriever):
+        advanced_retriever = MultiQueryRetriever.from_llm(
+            retriever=retriever,
+            llm=self.llm
+        )
+
         input_data ={
-            "context": retriever | self.format_docs,
+            "context": advanced_retriever | self.format_docs,
             "question": RunnablePassthrough()
         }
 

@@ -1,4 +1,5 @@
 import torch
+import os
 from langchain_huggingface.llms import HuggingFacePipeline
 from transformers import BitsAndBytesConfig
 from transformers import AutoTokenizer,AutoModelForCausalLM,pipeline
@@ -6,7 +7,7 @@ from transformers import AutoTokenizer,AutoModelForCausalLM,pipeline
 n4f_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_compute_dtype=torch.bfloat16,
-    bnb_4bit_quant_type="fp4",
+    bnb_4bit_quant_type="nf4",
     bnb_4bit_use_double_quant=True,
 )
 
@@ -26,7 +27,7 @@ def get_hf_llm(model_name : str = "microsoft/Phi-3.5-mini-instruct",max_new_toke
         tokenizer=tokenizer,
         max_new_tokens = max_new_token,
         pad_token_id = tokenizer.eos_token_id,
-        device_map="auto",
+        device_map="cuda:1",
         repetition_penalty = 1.15 #Tránh lặp từ
 )
     

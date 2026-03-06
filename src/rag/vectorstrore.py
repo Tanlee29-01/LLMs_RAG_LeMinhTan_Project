@@ -1,13 +1,18 @@
-from typing import Union # vi du set = set1 + set2
+from typing import Union
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
+import torch
+
+# Tự động nhận diện: Giờ máy bạn có CUDA, nó sẽ tự chọn "cuda"
+
 
 class VectorDB:
     def __init__(self,
                 documents = None,
                 vector_db: Union[Chroma,FAISS] = Chroma,
-                embedding = HuggingFaceEmbeddings()
+                # Truyền biến device vào đây
+                embedding = HuggingFaceEmbeddings(model_kwargs = {'device': 'cuda:0'})
                 ) -> None: 
 
         self.vector_db = vector_db
