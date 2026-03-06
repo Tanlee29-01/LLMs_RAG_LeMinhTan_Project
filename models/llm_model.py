@@ -10,7 +10,7 @@ n4f_config = BitsAndBytesConfig(
     bnb_4bit_use_double_quant=True,
 )
 
-def get_hf_llm(model_name : str = "",max_new_token = 1024,**kwargs):
+def get_hf_llm(model_name : str = "microsoft/Phi-3.5-mini-instruct",max_new_token = 1024,**kwargs):
 
 
     model = AutoModelForCausalLM.from_pretrained(

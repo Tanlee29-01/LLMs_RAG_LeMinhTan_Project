@@ -17,4 +17,4 @@ langchain-chroma
 fastapi[all]
 wget
 sse_starlette
-gradio
+streamlit
