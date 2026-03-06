@@ -2,6 +2,7 @@ import re
 from langchain_classic import hub
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
 """
 output: tach nhung cai minh can
 """
@@ -29,7 +30,18 @@ class Str_OutputParser(StrOutputParser):
 class Offline_RAG:
     def __init__(self,llm) -> None:
         self.llm = llm
-        self.prompt = hub.pull("rlm/rag-prompt")
+        #self.prompt = hub.pull("rlm/rag-prompt")
+        template = """You are a helpful and precise assistant. Use the following pieces of retrieved context to answer the question. 
+                If you don't know the answer, just say that you don't know. 
+                Answer concisely, directly, and DO NOT generate additional questions or explanations.
+
+                Context: {context}
+
+                Question: {question}
+
+                Helpful Answer:"""
+        
+        self.prompt = PromptTemplate.from_template(template)
         self.str_parser = Str_OutputParser()
 
     def get_chain(self,retriever):

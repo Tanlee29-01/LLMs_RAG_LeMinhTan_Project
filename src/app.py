@@ -8,7 +8,7 @@ from langserve import add_routes
 from models.llm_model import get_hf_llm
 from src.rag.main import build_rag_chain,InputQA,OutputQA
 
-llm = get_hf_llm(temperature = 0.9,model_name="microsoft/Phi-3.5-mini-instruct")
+llm = get_hf_llm(temperature = 0.0,model_name="microsoft/Phi-3.5-mini-instruct")
 genai_docs = "data/generative_ai"
 
 
@@ -18,6 +18,7 @@ genai_chain = build_rag_chain(llm,data_dir=genai_docs,data_type="pdf")
 
 # uvicorn src.app:app --host "0.0.0.0" --port 5050 --reload
 #-> click here http://localhost:5050/docs 
+
 #==============App - FastAPI==============
 app = FastAPI(
     title="LangChain Server",

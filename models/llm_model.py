@@ -26,7 +26,8 @@ def get_hf_llm(model_name : str = "microsoft/Phi-3.5-mini-instruct",max_new_toke
         tokenizer=tokenizer,
         max_new_tokens = max_new_token,
         pad_token_id = tokenizer.eos_token_id,
-        device_map="auto"
+        device_map="auto",
+        repetition_penalty = 1.15 #Tránh lặp từ
 )
     
     llm = HuggingFacePipeline(

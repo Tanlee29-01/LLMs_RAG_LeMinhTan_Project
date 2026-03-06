@@ -20,7 +20,7 @@ st.title("🤖 Chat với tài liệu PDF của bạn")
 # Khởi tạo LLM (Sử dụng cache để không load lại model mỗi lần nhấn nút)
 @st.cache_resource
 def load_llm():
-    return get_hf_llm(model_name="microsoft/Phi-3.5-mini-instruct", temperature=0.7)
+    return get_hf_llm(model_name="microsoft/Phi-3.5-mini-instruct", temperature=0.0)
 
 llm = load_llm()
 
@@ -50,7 +50,7 @@ if process_button and uploaded_files:
                 file_paths.append(file_path)
             
             # Sử dụng Loader của bạn để xử lý file
-            loader = Loader(file_type="pdf", split_kwargs={"chunk_size": 500, "chunk_overlap": 50})
+            loader = Loader(file_type="pdf", split_kwargs={"chunk_size": 1000, "chunk_overlap": 200})
             doc_split = loader.load(file_paths, workers=2)
             
             # Tạo Vector Database
