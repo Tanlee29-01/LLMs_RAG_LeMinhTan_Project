@@ -6,6 +6,6 @@ __pycache__/
 *.sqlite3
 chroma_db/
 notebooks/
-.env/
+.env
 .vscode/
 docs/
