@@ -32,3 +32,4 @@ pypdf
 requests  # Thay thế cho wget để tải file an toàn và hiện đại hơn
 pymupdf4llm
 docling
+ddgs

@@ -16,9 +16,18 @@ class InputQA(BaseModel):
 class OutputQA(BaseModel):
     answer:str = Field(...,title="Answer from model")
 
-def build_rag_chain(llm,data_dir,data_type):
-    doc_loaded = Loader(file_type = data_type).load_dir(data_dir,worker=2)
-    retriever = VectorDB(documents = doc_loaded).get_retriever()
-    rag_train = Offline_RAG(llm).get_chain(retriever)
+def build_rag_chain(llm, data_dir, data_type, mode: str = "qa"):
+    rag = Offline_RAG(llm)
+
+    try:
+        doc_loaded = Loader(file_type=data_type, strategy="docling").load_dir(data_dir, worker=1)
+    except AssertionError:
+        return rag.get_general_chain()
+
+    if not doc_loaded:
+        return rag.get_general_chain()
+
+    retriever = VectorDB(documents=doc_loaded).get_retriever()
+    rag_train = rag.get_chain(retriever, mode=mode)
 
     return rag_train

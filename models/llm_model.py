@@ -182,7 +182,7 @@ def _build_quantization_config() -> tuple[BitsAndBytesConfig | None, torch.dtype
 
 def get_hf_llm(
     model_name: str = DEFAULT_MODEL_NAME,
-    max_new_token: int = 128,
+    max_new_token: int = 256,
     temperature: float = 0.0,
     device_map: str = "auto",
     local_model_dir: str | None = None,
