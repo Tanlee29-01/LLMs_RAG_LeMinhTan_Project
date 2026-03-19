@@ -1,5 +1,6 @@
 # --- LLM & Models ---
 transformers==4.57.6
+huggingface-hub
 accelerate
 bitsandbytes
 sentence-transformers
@@ -10,6 +11,7 @@ langchain-core
 langchain-community
 langchain-classic
 langchain-huggingface
+langchain-ollama
 langchain-chroma
 langchain-openai
 langchain-experimental
@@ -28,3 +30,5 @@ jupyterlab
 # --- Utilities ---
 pypdf
 requests  # Thay thế cho wget để tải file an toàn và hiện đại hơn
+pymupdf4llm
+docling

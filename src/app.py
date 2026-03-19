@@ -1,14 +1,14 @@
 import os
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from langserve import add_routes
 
 from models.llm_model import get_hf_llm
 from src.rag.main import build_rag_chain,InputQA,OutputQA
 
-llm = get_hf_llm(temperature = 0.0,model_name="microsoft/Phi-3.5-mini-instruct")
+llm = get_hf_llm(temperature=0.1, model_name="Qwen/Qwen2.5-7B-Instruct")
 genai_docs = "data/generative_ai"
 
 
@@ -40,11 +40,14 @@ app.add_middleware(
 
 @app.get("/check")
 async def check():
-    return {"status:":"ok"}
+    return {"status":"ok"}
 
 @app.post("/generative_ai",response_model=OutputQA)
 async def generative_ai(inputs : InputQA):
-    answer = genai_chain.invoke(inputs.quesion)
+    try:
+        answer = genai_chain.invoke(inputs.question)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"RAG inference failed: {exc}") from exc
     return {"answer":answer}
 
 #==============Langserver Routes - Playground==============
@@ -52,5 +55,5 @@ add_routes(
     app,
     genai_chain,
     playground_type="default",
-    path="/generative_ai"
+    path="/langserve/generative_ai"
 )

@@ -1,4 +1,4 @@
-from pydantic import BaseModel,Field
+from pydantic import AliasChoices, BaseModel, Field
 
 from src.rag.file_loader import Loader
 from src.rag.vectorstrore import VectorDB
@@ -6,7 +6,12 @@ from src.rag.offline_rag import Offline_RAG
 
 
 class InputQA(BaseModel):
-    quesion:str = Field(...,title="QUestion to ask the model")
+    question: str = Field(
+        ...,
+        title="Question to ask the model",
+        validation_alias=AliasChoices("question", "quesion"),
+        serialization_alias="question",
+    )
 
 class OutputQA(BaseModel):
     answer:str = Field(...,title="Answer from model")
