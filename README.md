@@ -56,7 +56,7 @@ Mở terminal và chạy lệnh sau để khởi động API Server ở cổng 5
 
 Bash
 uvicorn src.app:app --host 127.0.0.1 --port 5051 --reload
-API Server sẽ cung cấp các endpoint như tải file (/upload) và truy vấn AI (/generative_ai).
+API Server sẽ cung cấp các endpoint như tải file (```/upload```) và truy vấn AI (```/generative_ai```).
 
 Bước 2: Chạy Frontend (Streamlit)
 Mở một terminal mới và chạy file giao diện:
