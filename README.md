@@ -34,7 +34,7 @@ Dự án **LLMs RAG Workspace** là một hệ thống Trợ lý ảo AI ứng d
 ├── app_ui.py                # File chạy giao diện Frontend Streamlit
 ├── Makefile                 # Các lệnh setup tự động tiện ích
 └── requirements.txt         # Danh sách các thư viện cần thiết
-
+```
 ⚙️ Cài đặt
 1. Clone dự án và thiết lập môi trường
 Bạn nên sử dụng môi trường ảo (Virtual Environment). Bạn có thể tự động tạo môi trường bằng lệnh Make:
