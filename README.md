@@ -102,4 +102,4 @@ streamlit run app_ui.py
 **Phiên bản:** 1.0.0
 
 **Lưu ý nhỏ:**\
- Ở phần **"4. Cấu hình biến môi trường"**, tui có nhắc đến file `.env`. Nếu trước đó bạn chưa dùng file `.env` mà chỉ set biến môi trường trực tiếp trên Terminal thì tui khuyên bạn nên tạo file `.env` và tải thêm thư viện `python-dotenv` nhé. Việc lưu Token vào file `.env` (và nhớ **không up file này lên Github**, đã có trong `.gitignore`) là chuẩn mực bảo mật khi làm dự án thực tế đó!
+ Ở phần **"4. Cấu hình biến môi trường"**, tui có nhắc đến file `.env`. Nếu trước đó bạn chưa dùng file `.env` mà chỉ set biến môi trường trực tiếp trên Terminal thì tui khuyên bạn nên tạo file `.env` và tải thêm thư viện `python-dotenv` nhé. Việc lưu Token vào file `.env` (và nhớ **không up file này lên Github**, đã có trong `.gitignore`) là chuẩn mực bảo mật khi làm dự án thực tế :))
