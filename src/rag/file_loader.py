@@ -2,7 +2,7 @@ import glob
 import multiprocessing
 import os
 import re
-from typing import List, Union
+from typing import Dict, List, Union
 
 import pymupdf4llm
 from docling.document_converter import DocumentConverter
@@ -24,14 +24,23 @@ def _get_markdown_splitter() -> MarkdownHeaderTextSplitter:
     )
 
 
-def load_pdf(pdf_file: str):
+def _merge_metadata(documents, metadata: Dict[str, str] | None):
+    if not metadata:
+        return documents
+
+    for doc in documents:
+        doc.metadata = {**(doc.metadata or {}), **metadata}
+    return documents
+
+
+def load_pdf(pdf_file: str, metadata: Dict[str, str] | None = None):
     docs = PyPDFLoader(pdf_file, extract_images=True).load()
     for doc in docs:
         doc.page_content = remove_non_utf8_character(doc.page_content)
-    return docs
+    return _merge_metadata(docs, metadata)
 
 
-def load_pdf_structural(pdf_file: str):
+def load_pdf_structural(pdf_file: str, metadata: Dict[str, str] | None = None):
     md_text = pymupdf4llm.to_markdown(pdf_file)
     md_header_splits = _get_markdown_splitter().split_text(md_text)
 
@@ -39,10 +48,10 @@ def load_pdf_structural(pdf_file: str):
         doc.page_content = remove_non_utf8_character(doc.page_content)
         doc.metadata = {**(doc.metadata or {}), "source": pdf_file, "loader": "pymupdf4llm"}
 
-    return md_header_splits
+    return _merge_metadata(md_header_splits, metadata)
 
 
-def load_pdf_docling(pdf_file: str, converter: DocumentConverter):
+def load_pdf_docling(pdf_file: str, converter: DocumentConverter, metadata: Dict[str, str] | None = None):
     conversion_result = converter.convert(pdf_file)
     md_text = conversion_result.document.export_to_markdown()
     if not md_text or not md_text.strip():
@@ -56,7 +65,18 @@ def load_pdf_docling(pdf_file: str, converter: DocumentConverter):
         doc.page_content = remove_non_utf8_character(doc.page_content)
         doc.metadata = {**(doc.metadata or {}), "source": pdf_file, "loader": "docling"}
 
-    return md_header_splits
+    return _merge_metadata(md_header_splits, metadata)
+
+
+def load_txt(text_file: str, metadata: Dict[str, str] | None = None):
+    with open(text_file, "r", encoding="utf-8", errors="ignore") as file_handle:
+        text = file_handle.read()
+
+    document = Document(
+        page_content=remove_non_utf8_character(text),
+        metadata={"source": text_file, "loader": "text"},
+    )
+    return _merge_metadata([document], metadata)
 
 
 def get_num_cpu():
@@ -77,28 +97,29 @@ class PDFLoader(BaseLoader):
         self.strategy = strategy
         self.docling_converter = DocumentConverter() if strategy == "docling" else None
 
-    def _load_single_file(self, pdf_file: str):
+    def _load_single_file(self, pdf_file: str, metadata: Dict[str, str] | None = None):
         if self.strategy == "docling":
             try:
-                return load_pdf_docling(pdf_file, self.docling_converter)
+                return load_pdf_docling(pdf_file, self.docling_converter, metadata=metadata)
             except Exception as exc:
                 print(f"[WARN] Docling failed for {pdf_file}. Fallback to pymupdf4llm. Error: {exc}")
-                return load_pdf_structural(pdf_file)
+                return load_pdf_structural(pdf_file, metadata=metadata)
 
         if self.strategy == "structural":
-            return load_pdf_structural(pdf_file)
+            return load_pdf_structural(pdf_file, metadata=metadata)
 
-        return load_pdf(pdf_file)
+        return load_pdf(pdf_file, metadata=metadata)
 
     def __call__(self, pdf_files: List[str], **kwargs):
         num_process = min(self.num_process, kwargs.get("workers", 4))
+        metadata = kwargs.get("metadata")
 
         # For Docling on Windows, run sequentially to avoid startup and permissions issues.
         if self.strategy == "docling" or num_process <= 1 or os.name == "nt":
             doc_loaded = []
             with tqdm(total=len(pdf_files), desc=f"Loading PDFs ({self.strategy})", unit="file") as pbar:
                 for pdf_file in pdf_files:
-                    doc_loaded.extend(self._load_single_file(pdf_file))
+                    doc_loaded.extend(self._load_single_file(pdf_file, metadata=metadata))
                     pbar.update(1)
             return doc_loaded
 
@@ -137,7 +158,7 @@ class Loader:
         strategy: str = "docling",
         split_kwargs: dict = None,
     ) -> None:
-        assert file_type in ["pdf"], "file_type must be pdf"
+        assert file_type in ["pdf", "txt", "mixed", "auto"], "file_type must be pdf, txt, mixed or auto"
         self.file_type = file_type
         self.strategy = strategy
 
@@ -147,26 +168,45 @@ class Loader:
                 "chunk_overlap": 150,
             }
 
-        if file_type == "pdf":
+        if file_type in ["pdf", "mixed", "auto"]:
             self.doc_loader = PDFLoader(strategy=strategy)
         else:
-            raise ValueError("file_type must be pdf")
+            self.doc_loader = None
 
         self.doc_splitter = TextSplitter(**split_kwargs)
 
-    def load(self, pdf_files: Union[str, List[str]], workers: int = 1):
+    def load(self, pdf_files: Union[str, List[str]], workers: int = 1, metadata: Dict[str, str] | None = None):
         if isinstance(pdf_files, str):
             pdf_files = [pdf_files]
 
-        doc_loader = self.doc_loader(pdf_files, workers=workers)
+        doc_loader = []
+        pdf_targets = [file_path for file_path in pdf_files if file_path.lower().endswith(".pdf")]
+        txt_targets = [file_path for file_path in pdf_files if file_path.lower().endswith(".txt")]
+
+        if pdf_targets and self.doc_loader is not None:
+            doc_loader.extend(self.doc_loader(pdf_targets, workers=workers, metadata=metadata))
+
+        for text_file in txt_targets:
+            doc_loader.extend(load_txt(text_file, metadata=metadata))
+
         doc_split = self.doc_splitter(doc_loader)
+        doc_split = _merge_metadata(doc_split, metadata)
 
         return doc_split
 
-    def load_dir(self, dir_path: str, worker: int = 2):
-        if self.file_type == "pdf":
-            files = glob.glob(f"{dir_path}/*pdf")
-            assert len(files) > 0, f"No {self.file_type} file found in {dir_path}"
+    def load_dir(self, dir_path: Union[str, List[str]], worker: int = 2, metadata: Dict[str, str] | None = None):
+        if isinstance(dir_path, str):
+            dir_paths = [dir_path]
         else:
-            raise ValueError("file_type must be pdf")
-        return self.load(files, workers=worker)
+            dir_paths = dir_path
+
+        files = []
+        for directory in dir_paths:
+            if self.file_type in ["pdf", "mixed", "auto"]:
+                files.extend(glob.glob(os.path.join(directory, "*.pdf")))
+            if self.file_type in ["txt", "mixed", "auto"]:
+                files.extend(glob.glob(os.path.join(directory, "*.txt")))
+
+        files = list(dict.fromkeys(files))
+        assert len(files) > 0, f"No {self.file_type} file found in {dir_paths}"
+        return self.load(files, workers=worker, metadata=metadata)

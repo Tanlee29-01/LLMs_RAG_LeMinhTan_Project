@@ -1,75 +1,105 @@
-# LLMs RAG Workspace
+***
+# 🚀 LLMs RAG Project - Trợ lý AI phân tích tài liệu
 
-Dự án **LLMs RAG Workspace** là một hệ thống Trợ lý ảo AI ứng dụng kỹ thuật RAG (Retrieval-Augmented Generation) tiên tiến, cho phép người dùng hỏi đáp trực tiếp dựa trên các tài liệu cá nhân (PDF, TXT) hoặc thông tin thời gian thực từ Internet. Dự án được phát triển bởi LeMinhTan.
+Dự án này là một hệ thống **RAG (Retrieval-Augmented Generation)** cho phép người dùng trò chuyện, đặt câu hỏi và khai thác thông tin từ các tài liệu cá nhân (PDF, TXT,...) thông qua giao diện **Telegram Bot** tiện lợi. Hệ thống cũng cung cấp sẵn giao diện Web bằng Streamlit.
 
-## 🌟 Tính năng nổi bật
+---
 
-* **Giao diện người dùng trực quan**: Được xây dựng bằng `Streamlit` với chế độ Dark Mode chuẩn Open WebUI, hỗ trợ tải lên nhiều tài liệu cùng lúc và hiệu ứng gõ chữ (Typewriter effect) chuyên nghiệp.
-* **Backend API mạnh mẽ**: Sử dụng `FastAPI` và `LangServe` để xử lý các luồng dữ liệu, hỗ trợ playground để kiểm thử trực tiếp.
-* **Hỗ trợ đa mô hình (Multi-LLMs)**: Hỗ trợ tích hợp đa dạng các mô hình LLM từ chạy cục bộ (Ollama, HuggingFace) đến các API thương mại (gpt-4o, gemini-1.5-pro, claude-3-5-sonnet). Mô hình mặc định là `llama3.1:8b`.
-* **Xử lý tài liệu chuyên sâu**: Tích hợp `Docling` và `pymupdf4llm` để chuyển đổi PDF thành Markdown, kết hợp cùng `MarkdownHeaderTextSplitter` để giữ nguyên cấu trúc ngữ nghĩa của tài liệu khi cắt nhỏ.
-* **Cơ sở dữ liệu Vector (Vector DB)**: Lưu trữ và truy xuất ngữ nghĩa bằng `Chroma` hoặc `FAISS`, sử dụng mô hình nhúng mặc định `nomic-embed-text` qua giao thức của Ollama.
-* **RAG Lai tự động điều hướng (Hybrid/Routing RAG)**: Tự động phân tích ý định trong câu hỏi:
-  * Trích xuất tài liệu: Trả lời dựa trên các file PDF/TXT người dùng tải lên.
-  * Tìm kiếm Web: Tự động kích hoạt tìm kiếm thời gian thực (qua DuckDuckGo) nếu phát hiện các từ khóa thời sự như "hôm nay", "thời tiết", "giá cả"....
+## ✨ Tính năng nổi bật
 
-## 📁 Cấu trúc thư mục
+- **Giao diện Telegram Bot:** Tương tác mượt mà, tiện lợi ngay trên điện thoại và máy tính.
+- **Hỗ trợ đa mô hình (Multi-Models):** Có thể linh hoạt chuyển đổi giữa các LLM mạnh mẽ như Llama 3.1 8B, GPT-4o,...
+- **Xử lý tài liệu thông minh:** Kéo thả trực tiếp file PDF, TXT vào khung chat để bot nhúng vào Vector Database và học nội dung.
+- **Tuỳ chỉnh tham số:** Hỗ trợ lệnh `/settings` trên Telegram để điều chỉnh độ sáng tạo (Temperature).
+- **Backend độc lập:** Sử dụng FastAPI làm lõi trung tâm, dễ dàng mở rộng và tích hợp với nhiều nền tảng khác.
+
+---
+
+## 📂 Cấu trúc thư mục chính
 
 ```text
-├── .streamlit/
-│   └── config.toml          # Cấu hình giao diện Streamlit (Dark mode)
-├── data/
-│   └── generative_ai/       # Nơi lưu trữ tự động các file tài liệu người dùng tải lên
-├── docs/                    # Tài liệu hướng dẫn (MkDocs) & Lộ trình RAG
-├── models/
-│   └── llm_model.py         # Module quản lý việc tải và giao tiếp với các mô hình LLM
-├── src/
-│   ├── app.py               # Chứa Backend FastAPI chính
-│   └── rag/
-│       ├── file_loader.py   # Code trích xuất và cắt nhỏ văn bản (Docling, PyMuPDF)
-│       ├── main.py          # Khởi tạo RAG Chain
-│       ├── offline_rag.py   # Lõi xử lý logic RAG, Prompting và Routing
-│       ├── vectorstrore.py  # Quản lý Vector Database (Chroma/FAISS)
-│       └── web_search.py    # Module tìm kiếm DuckDuckGo (HTML/DDGS)
-├── app_ui.py                # File chạy giao diện Frontend Streamlit
-├── Makefile                 # Các lệnh setup tự động tiện ích
-└── requirements.txt         # Danh sách các thư viện cần thiết
+LLMs_RAG_LeMinhTan_Project/
+│
+├── src/                # Chứa mã nguồn Backend (FastAPI) và Logic RAG
+│   ├── app.py          # File khởi chạy API Server
+│   └── rag/            # Các module xử lý VectorDB, Loader, Web Search,...
+│
+├── models/             # Chứa mã nguồn cấu hình LLM
+├── telegram_bot.py     # Giao diện Chatbot trên Telegram
+├── app_ui.py           # Giao diện Web (Streamlit) - Phương án dự phòng
+├── requirements.txt    # Danh sách các thư viện Python cần thiết
+├── .env.example        # Mẫu file chứa các biến môi trường (Cần tạo file .env từ đây)
+└── README.md           # Tài liệu hướng dẫn sử dụng
 ```
-⚙️ Cài đặt
-1. Clone dự án và thiết lập môi trường
-Bạn nên sử dụng môi trường ảo (Virtual Environment). Bạn có thể tự động tạo môi trường bằng lệnh Make:
 
-Bash
-make create_environment
-2. Cài đặt các thư viện phụ thuộc
-Chạy lệnh Make để cài đặt requirements.txt và nâng cấp pip:
+---
 
-Bash
-make requirements
-(Lưu ý: Bạn cũng cần cài đặt và khởi chạy ứng dụng Ollama trên máy tính của mình với các model llama3.1:8b và nomic-embed-text để sử dụng mặc định).
+## ⚙️ Hướng dẫn cài đặt
 
-🚀 Khởi chạy hệ thống
-Hệ thống hoạt động dựa trên cơ chế Client-Server, do đó bạn cần khởi chạy Backend trước khi mở Frontend.
+**1. Clone dự án và di chuyển vào thư mục:**
+```bash
+git clone <đường-link-repo-của-bạn>
+cd LLMs_RAG_LeMinhTan_Project
+```
 
-Bước 1: Chạy Backend (FastAPI)
-Mở terminal và chạy lệnh sau để khởi động API Server ở cổng 5051:
+**2. Tạo và kích hoạt môi trường ảo (Khuyến nghị):**
+* **Windows:** `python -m venv .venv` sau đó `.\.venv\Scripts\activate`
+* **Mac/Linux:** `python3 -m venv .venv` sau đó `source .venv/bin/activate`
 
-Bash
+**3. Cài đặt các thư viện cần thiết:**
+```bash
+pip install -r requirements.txt
+```
+
+**4. Cấu hình biến môi trường:**
+* Tạo một file tên là `.env` ở thư mục gốc của dự án.
+* Thêm Token của Telegram Bot và các API Key (như OpenAI Key, Groq Key...) vào file `.env`:
+```env
+TELEGRAM_BOT_TOKEN="123456789:ABCdefGHIjklmNOPqrs..."
+# Thêm các API Key khác của bạn ở dưới (Ví dụ: OPENAI_API_KEY,...)
+```
+
+---
+
+## 🚀 Hướng dẫn khởi chạy
+
+Để hệ thống hoạt động, bạn cần chạy Backend trước, sau đó chạy Frontend (Telegram Bot hoặc Streamlit).
+
+### Bước 1: Khởi động Backend (Bắt buộc)
+Mở một terminal mới, đảm bảo đã kích hoạt môi trường ảo và chạy lệnh sau:
+```bash
 uvicorn src.app:app --host 127.0.0.1 --port 5051 --reload
-API Server sẽ cung cấp các endpoint như tải file (```/upload```) và truy vấn AI (```/generative_ai```).
+```
+*(Backend sẽ chạy ở địa chỉ http://127.0.0.1:5051)*
 
-Bước 2: Chạy Frontend (Streamlit)
-Mở một terminal mới và chạy file giao diện:
+### Bước 2: Khởi động Giao diện (Chọn 1 trong 2)
 
-Bash
+**Lựa chọn A: Dùng Telegram Bot (Khuyến nghị)**
+Mở một terminal **mới** (giữ nguyên terminal Backend đang chạy) và gõ:
+```bash
+python telegram_bot.py
+```
+*Sau khi thấy thông báo "Bot đã sẵn sàng", hãy lên Telegram tìm `@username_bot_cua_ban` và nhấn /start.*
+
+**Lựa chọn B: Dùng Giao diện Web Streamlit**
+Mở một terminal **mới** và gõ:
+```bash
 streamlit run app_ui.py
-Trình duyệt sẽ tự động mở trang web tại địa chỉ http://localhost:8501.
+```
+*Trình duyệt sẽ tự động mở giao diện web ở địa chỉ http://localhost:8501.*
 
-💡 Hướng dẫn sử dụng
-1. Tại thanh bên (Sidebar), kéo thả các file PDF hoặc TXT chứa kiến thức của bạn.
+---
 
-2. Bấm nút "🚀 Nhúng tài liệu (Embed)" và chờ hệ thống phân tích, lưu trữ vào Vector DB.
+## 📝 Cách sử dụng Bot Telegram
+- **`/start`**: Bắt đầu trò chuyện và khởi tạo bot.
+- **`/settings`**: Mở menu chọn Model AI và tùy chỉnh độ sáng tạo.
+- **Gửi File**: Kéo thả trực tiếp file PDF/TXT vào chat để bot đọc dữ liệu.
+- **Chat trực tiếp**: Nhập câu hỏi bất kỳ để truy vấn thông tin từ tài liệu đã gửi.
 
-3. Ở khung bên dưới cùng, chọn LLM mong muốn và tùy chỉnh thông số "Độ sáng tạo" (Temperature).
+---
 
-4. Bắt đầu chat với trợ lý ảo Minh Tân để hỏi đáp các kiến thức có trong tài liệu hoặc các tin tức mới nhất từ internet!
+**Tác giả:** Lê Minh Tân  
+**Phiên bản:** 1.0.0
+
+**Lưu ý nhỏ:**\
+ Ở phần **"4. Cấu hình biến môi trường"**, tui có nhắc đến file `.env`. Nếu trước đó bạn chưa dùng file `.env` mà chỉ set biến môi trường trực tiếp trên Terminal thì tui khuyên bạn nên tạo file `.env` và tải thêm thư viện `python-dotenv` nhé. Việc lưu Token vào file `.env` (và nhớ **không up file này lên Github**, đã có trong `.gitignore`) là chuẩn mực bảo mật khi làm dự án thực tế đó!

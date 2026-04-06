@@ -13,6 +13,7 @@ class VectorDB:
                 documents = None,
                 vector_db: Union[Chroma,FAISS] = Chroma,
                 embedding = None,
+                metadata_filter: dict | None = None,
                 ) -> None:
 
         self.documents = documents or []
@@ -21,6 +22,7 @@ class VectorDB:
             model=DEFAULT_EMBEDDING_MODEL,
             base_url=DEFAULT_OLLAMA_BASE_URL,
         )
+        self.metadata_filter = metadata_filter or {}
         self.db = self._build_db(documents)
 
     def _build_db(self,documents):
@@ -33,6 +35,8 @@ class VectorDB:
                     ):
         if search_kwargs is None:
             search_kwargs = {"k": 4, "fetch_k": 12}
+        if self.metadata_filter:
+            search_kwargs = {**search_kwargs, "filter": self.metadata_filter}
         retriever = self.db.as_retriever(search_type=search_type,
                                         search_kwargs=search_kwargs)
         return retriever

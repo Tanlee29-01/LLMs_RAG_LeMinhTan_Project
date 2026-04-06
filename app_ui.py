@@ -3,6 +3,7 @@ import time
 import os
 import tempfile
 import requests
+import uuid
 from langchain_ollama import ChatOllama
 
 
@@ -37,6 +38,8 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 if "vectorstore_ready" not in st.session_state:
     st.session_state.vectorstore_ready = False
+if "chat_id" not in st.session_state:
+    st.session_state.chat_id = uuid.uuid4().hex
 
 # =====================================================================
 # 4. CÁC HÀM XỬ LÝ LÕI 
@@ -53,6 +56,7 @@ def process_uploaded_files(uploaded_files):
         response = requests.post(
             'http://127.0.0.1:5051/upload',
             files=files_to_upload,
+            data={'chat_id': st.session_state.chat_id},
             timeout=120
         )
         
@@ -75,7 +79,7 @@ def get_rag_response(user_query, model_name="llama3.1:8b", temperature=0.1):
         # Gọi FastAPI endpoint
         response = requests.post(
             'http://127.0.0.1:5051/generative_ai',
-            json={'question': user_query},
+            json={'question': user_query, 'chat_id': st.session_state.chat_id},
             timeout=90
         )
         
